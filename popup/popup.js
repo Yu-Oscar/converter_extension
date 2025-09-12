@@ -749,10 +749,6 @@ function populatePrimaryTimezoneSelect() {
       primaryTimezoneSelect.appendChild(option);
     });
   });
-
-  console.log(
-    `Primary timezone dropdown populated with ${primaryTimezoneSelect.options.length} options`
-  );
 }
 
 function populatePrimaryCurrencySelect() {
@@ -846,7 +842,6 @@ function loadPreferences() {
     document.getElementById("secondaryWeights").innerHTML = "";
     const secondaryWeights = weightPrefs.secondaryUnits || [];
     secondaryWeights.forEach((unit) => addSecondaryWeight(unit));
-
 
     // Initialize currency converter with loaded preferences
     if (typeof initializeCurrencyConverter === "function") {
@@ -1197,6 +1192,11 @@ function setupConverters() {
         value.className = "result-value";
         value.textContent = `${formattedValue} ${unit.symbol}`;
 
+        // Add click-to-copy functionality
+        value.addEventListener("click", () => {
+          copyToClipboard(value.textContent, value);
+        });
+
         resultItem.appendChild(label);
         resultItem.appendChild(value);
         tabContentDiv.appendChild(resultItem);
@@ -1297,6 +1297,11 @@ function setupConverters() {
           value.textContent = `${formattedValue} ${unit.symbol}`;
         }
 
+        // Add click-to-copy functionality
+        value.addEventListener("click", () => {
+          copyToClipboard(value.textContent, value);
+        });
+
         resultItem.appendChild(label);
         resultItem.appendChild(value);
         tabContentDiv.appendChild(resultItem);
@@ -1351,6 +1356,11 @@ function setupConverters() {
       const value = document.createElement("div");
       value.className = "result-value";
       value.textContent = `${formattedValue} ${unit.symbol}`;
+
+      // Add click-to-copy functionality
+      value.addEventListener("click", () => {
+        copyToClipboard(formattedValue, value);
+      });
 
       resultItem.appendChild(label);
       resultItem.appendChild(value);
@@ -1533,6 +1543,11 @@ function setupConverters() {
         value.className = "result-value";
         value.textContent = `${formattedValue} ${unit.symbol}`;
 
+        // Add click-to-copy functionality
+        value.addEventListener("click", () => {
+          copyToClipboard(value.textContent, value);
+        });
+
         resultItem.appendChild(label);
         resultItem.appendChild(value);
         tabContentDiv.appendChild(resultItem);
@@ -1635,6 +1650,11 @@ function setupConverters() {
         } else {
           value.textContent = `${formattedValue} ${unit.symbol}`;
         }
+
+        // Add click-to-copy functionality
+        value.addEventListener("click", () => {
+          copyToClipboard(value.textContent, value);
+        });
 
         resultItem.appendChild(label);
         resultItem.appendChild(value);
@@ -1765,6 +1785,11 @@ function setupConverters() {
         value.className = "result-value";
         value.textContent = `${formattedValue} ${unit.symbol}`;
 
+        // Add click-to-copy functionality
+        value.addEventListener("click", () => {
+          copyToClipboard(value.textContent, value);
+        });
+
         resultItem.appendChild(label);
         resultItem.appendChild(value);
         tempResults.appendChild(resultItem);
@@ -1775,16 +1800,16 @@ function setupConverters() {
   tempInput.addEventListener("input", convertTemperature);
   tempFrom.addEventListener("change", convertTemperature);
 
-  // Currency converter (simplified - would need API for real rates)
+  // Currency converter
   const currencyInput = document.getElementById("currency-input");
   const currencyFrom = document.getElementById("currency-from");
   const currencyTo = document.getElementById("currency-to");
-  const currencyOutput = document.getElementById("currency-output");
+  const currencyConversions = document.getElementById("currency-conversions");
 
   function convertCurrency() {
     const value = parseFloat(currencyInput.value);
-    if (isNaN(value)) {
-      currencyOutput.value = "";
+    if (isNaN(value) || !currencyConversions) {
+      if (currencyConversions) currencyConversions.innerHTML = "";
       return;
     }
 
@@ -1830,12 +1855,97 @@ function setupConverters() {
     const fromUnit = currencyFrom.value;
     const toUnit = currencyTo.value;
 
-    // Convert to USD first, then to target
+    // Convert to USD first for all conversions
     const usd = value / rates[fromUnit];
-    const result = usd * rates[toUnit];
 
-    // Format result
-    currencyOutput.value = parseFloat(result.toFixed(2)).toString();
+    // Clear existing conversions
+    currencyConversions.innerHTML = "";
+
+    // Get currency preferences for all conversions to display
+    const currencyPrefs = currentPrefs.currency || {};
+    const primaryCurrency = currencyPrefs.primaryCurrency || "HKD";
+    const secondaryCurrencies = currencyPrefs.secondaryCurrencies || [];
+
+    // Create array of all currencies to show (to currency + primary + secondaries)
+    const allCurrencies = [toUnit, primaryCurrency, ...secondaryCurrencies];
+
+    // Remove duplicates and filter out the from currency
+    const uniqueCurrencies = [...new Set(allCurrencies)].filter(
+      (currency) => currency !== fromUnit
+    );
+
+    // Generate conversions for each currency
+    uniqueCurrencies.forEach((targetCurrency) => {
+      // Convert from USD to target currency
+      const result = usd * rates[targetCurrency];
+
+      // Get currency info for display
+      const currencyInfo = CURRENCIES.find((c) => c.value === targetCurrency);
+      const currencySymbol = currencyInfo
+        ? currencyInfo.symbol
+        : targetCurrency;
+      const currencyLabel = currencyInfo ? currencyInfo.label : targetCurrency;
+
+      // Format result with proper number formatting
+      let formattedResult;
+      if (result >= 1000000) {
+        formattedResult = (result / 1000000).toFixed(2) + "M";
+      } else if (result >= 10000) {
+        formattedResult = Math.round(result).toLocaleString();
+      } else if (result >= 1) {
+        formattedResult = result.toFixed(2);
+      } else {
+        formattedResult = result.toFixed(4);
+      }
+
+      // Create conversion result item (matching overlay style)
+      const convDiv = document.createElement("div");
+      convDiv.className = "conversion";
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = currencyLabel;
+
+      const valueDiv = document.createElement("div");
+      valueDiv.className = "value";
+
+      // Format currency properly based on currency code
+      let formattedValue;
+      const symbolInFront = [
+        "USD",
+        "EUR",
+        "GBP",
+        "CNY",
+        "INR",
+        "KRW",
+        "RUB",
+        "CAD",
+        "AUD",
+        "HKD",
+        "SGD",
+        "NZD",
+        "BRL",
+        "ILS",
+        "TRY",
+      ];
+
+      if (symbolInFront.includes(toUnit)) {
+        formattedValue = `${currencySymbol} ${formattedResult}`;
+      } else {
+        formattedValue = `${formattedResult} ${currencySymbol}`;
+      }
+
+      valueDiv.textContent = formattedValue;
+
+      // Add click-to-copy functionality
+      valueDiv.addEventListener("click", () => {
+        copyToClipboard(valueDiv.textContent, valueDiv);
+      });
+
+      convDiv.appendChild(label);
+      convDiv.appendChild(valueDiv);
+      currencyConversions.appendChild(convDiv);
+    });
   }
 
   currencyInput.addEventListener("input", convertCurrency);
@@ -2128,6 +2238,11 @@ function refreshTimeConversions() {
       value.className = "time-conversion-value";
       value.textContent = targetFormattedTime;
 
+      // Add click-to-copy functionality
+      value.addEventListener("click", () => {
+        copyToClipboard(value.textContent, value);
+      });
+
       convDiv.appendChild(label);
       convDiv.appendChild(value);
       timeConversions.appendChild(convDiv);
@@ -2198,4 +2313,44 @@ function initializeLengthConverter() {
       convertLength();
     }
   }
+}
+
+// Helper function to copy text to clipboard and show feedback
+function copyToClipboard(text, element) {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      // Show visual feedback
+      const originalText = element.textContent;
+      element.textContent = "Copied!";
+      element.style.background = "#fef3c7";
+      element.style.color = "#92400e";
+
+      setTimeout(() => {
+        element.textContent = originalText;
+        element.style.background = "";
+        element.style.color = "#d97706";
+      }, 1500);
+    })
+    .catch(() => {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      // Show feedback
+      const originalText = element.textContent;
+      element.textContent = "Copied!";
+      element.style.background = "#fef3c7";
+      element.style.color = "#92400e";
+
+      setTimeout(() => {
+        element.textContent = originalText;
+        element.style.background = "";
+        element.style.color = "#d97706";
+      }, 1500);
+    });
 }

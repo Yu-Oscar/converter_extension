@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Smart Converter",
+  "name": "Flash Convert",
   "version": "1.0.0",
   "description": "Convert selected text (times, temperatures, etc.) into your preferred formats with a right-click",
 
@@ -20,10 +20,8 @@
 
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "Smart Converter Settings"
+    "default_title": "Flash Convert Settings"
   },
-
-  "options_page": "options/options.html",
 
   "icons": {
     "16": "icons/icon16.png",

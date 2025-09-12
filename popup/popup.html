@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Smart Converter</title>
+    <title>Flash Convert</title>
     <style>
       body {
         width: 320px;
@@ -284,9 +284,10 @@
       }
 
       .tab-btn.active {
-        background: #2563eb;
+        background: #fbbf24;
         color: white;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
       }
 
       .tab-content {
@@ -406,9 +407,19 @@
       }
 
       .result-value {
-        color: #059669;
+        color: #d97706;
         font-weight: 600;
         font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .result-value:hover {
+        background: #fef3c7;
+        padding: 2px 4px;
+        border-radius: 3px;
+        transform: translateY(-1px);
       }
 
       .input-group {
@@ -652,9 +663,58 @@
       }
 
       .time-conversion-value {
-        color: #2563eb;
+        color: #d97706;
         font-weight: 600;
+        font-size: 16px;
         margin-top: 2px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .time-conversion-value:hover {
+        background: #fef3c7;
+        padding: 2px 4px;
+        border-radius: 3px;
+        transform: translateY(-1px);
+      }
+
+      /* Currency conversions (matching exact overlay styling) */
+      .currency-conversions {
+        margin-top: 8px;
+      }
+
+      .conversion {
+        margin-bottom: 8px;
+      }
+
+      .conversion:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .label {
+        font-weight: 500;
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .value {
+        color: #d97706;
+        font-weight: 600;
+        font-size: 16px;
+        margin-top: 2px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .value:hover {
+        background: #fef3c7;
+        padding: 2px 4px;
+        border-radius: 3px;
+        transform: translateY(-1px);
       }
 
       @media (max-width: 300px) {
@@ -685,7 +745,7 @@
     <!-- Main Page -->
     <div class="page active" id="mainPage">
       <div class="header">
-        <h1>Smart Converter</h1>
+        <h1>Flash Convert</h1>
         <button class="nav-button" id="settingsBtn">Settings</button>
       </div>
 
@@ -860,98 +920,106 @@
 
           <!-- Currency Tab Content -->
           <div class="tab-content" id="currency-tab">
-            <div class="converter-section">
-              <div class="input-group">
+            <!-- Currency input and selector -->
+            <div class="time-detected" id="currency-detected">
+              <!-- From currency and amount row -->
+              <div class="from-row">
                 <input
                   type="number"
                   id="currency-input"
                   placeholder="Enter value"
                   step="any"
+                  style="width: 140px; height: 32px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-weight: 500; background: white; color: #333; outline: none; box-sizing: border-box;"
                 />
                 <select id="currency-from">
-                  <option value="ARS">ARS</option>
-                  <option value="AUD">AUD</option>
-                  <option value="BRL">BRL</option>
-                  <option value="CAD">CAD</option>
-                  <option value="CHF">CHF</option>
-                  <option value="CLP">CLP</option>
-                  <option value="CNY">CNY</option>
-                  <option value="COP">COP</option>
-                  <option value="CZK">CZK</option>
-                  <option value="DKK">DKK</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="HKD">HKD</option>
-                  <option value="HUF">HUF</option>
-                  <option value="IDR">IDR</option>
-                  <option value="ILS">ILS</option>
-                  <option value="INR">INR</option>
-                  <option value="JPY">JPY</option>
-                  <option value="KRW">KRW</option>
-                  <option value="MXN">MXN</option>
-                  <option value="MYR">MYR</option>
-                  <option value="NOK">NOK</option>
-                  <option value="NZD">NZD</option>
-                  <option value="PEN">PEN</option>
-                  <option value="PHP">PHP</option>
-                  <option value="PLN">PLN</option>
-                  <option value="RUB">RUB</option>
-                  <option value="SEK">SEK</option>
-                  <option value="SGD">SGD</option>
-                  <option value="THB">THB</option>
-                  <option value="TRY">TRY</option>
-                  <option value="TWD">TWD</option>
-                  <option value="USD">USD</option>
-                  <option value="VND">VND</option>
-                  <option value="ZAR">ZAR</option>
+                  <option value="USD" selected>$ - US Dollar</option>
+                  <option value="EUR">€ - Euro</option>
+                  <option value="GBP">£ - British Pound</option>
+                  <option value="JPY">¥ - Japanese Yen</option>
+                  <option value="AUD">A$ - Australian Dollar</option>
+                  <option value="CAD">C$ - Canadian Dollar</option>
+                  <option value="CHF">CHF - Swiss Franc</option>
+                  <option value="CNY">¥ - Chinese Yuan</option>
+                  <option value="INR">₹ - Indian Rupee</option>
+                  <option value="KRW">₩ - South Korean Won</option>
+                  <option value="ARS">$ - Argentine Peso</option>
+                  <option value="BRL">R$ - Brazilian Real</option>
+                  <option value="CLP">$ - Chilean Peso</option>
+                  <option value="COP">$ - Colombian Peso</option>
+                  <option value="CZK">Kč - Czech Koruna</option>
+                  <option value="DKK">kr - Danish Krone</option>
+                  <option value="HKD">HK$ - Hong Kong Dollar</option>
+                  <option value="HUF">Ft - Hungarian Forint</option>
+                  <option value="IDR">Rp - Indonesian Rupiah</option>
+                  <option value="ILS">₪ - Israeli Shekel</option>
+                  <option value="MXN">$ - Mexican Peso</option>
+                  <option value="MYR">RM - Malaysian Ringgit</option>
+                  <option value="NOK">kr - Norwegian Krone</option>
+                  <option value="NZD">NZ$ - New Zealand Dollar</option>
+                  <option value="PEN">S/ - Peruvian Sol</option>
+                  <option value="PHP">₱ - Philippine Peso</option>
+                  <option value="PLN">zł - Polish Zloty</option>
+                  <option value="RUB">₽ - Russian Ruble</option>
+                  <option value="SEK">kr - Swedish Krona</option>
+                  <option value="SGD">S$ - Singapore Dollar</option>
+                  <option value="THB">฿ - Thai Baht</option>
+                  <option value="TRY">₺ - Turkish Lira</option>
+                  <option value="TWD">NT$ - Taiwan Dollar</option>
+                  <option value="VND">₫ - Vietnamese Dong</option>
+                  <option value="ZAR">R - South African Rand</option>
                 </select>
               </div>
-              <div class="convert-arrow">→</div>
-              <div class="input-group">
-                <input
-                  type="text"
-                  id="currency-output"
-                  readonly
-                  placeholder="Result"
-                />
+
+              <!-- Arrow separator row -->
+              <div class="arrow-row">
+                <span class="timezone-separator">↓</span>
+              </div>
+
+              <!-- To currency row -->
+              <div class="timezone-row">
                 <select id="currency-to">
-                  <option value="ARS">ARS</option>
-                  <option value="AUD">AUD</option>
-                  <option value="BRL">BRL</option>
-                  <option value="CAD">CAD</option>
-                  <option value="CHF">CHF</option>
-                  <option value="CLP">CLP</option>
-                  <option value="CNY">CNY</option>
-                  <option value="COP">COP</option>
-                  <option value="CZK">CZK</option>
-                  <option value="DKK">DKK</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="HKD">HKD</option>
-                  <option value="HUF">HUF</option>
-                  <option value="IDR">IDR</option>
-                  <option value="ILS">ILS</option>
-                  <option value="INR">INR</option>
-                  <option value="JPY">JPY</option>
-                  <option value="KRW">KRW</option>
-                  <option value="MXN">MXN</option>
-                  <option value="MYR">MYR</option>
-                  <option value="NOK">NOK</option>
-                  <option value="NZD">NZD</option>
-                  <option value="PEN">PEN</option>
-                  <option value="PHP">PHP</option>
-                  <option value="PLN">PLN</option>
-                  <option value="RUB">RUB</option>
-                  <option value="SEK">SEK</option>
-                  <option value="SGD">SGD</option>
-                  <option value="THB">THB</option>
-                  <option value="TRY">TRY</option>
-                  <option value="TWD">TWD</option>
-                  <option value="USD">USD</option>
-                  <option value="VND">VND</option>
-                  <option value="ZAR">ZAR</option>
+                  <option value="ARS">$ - Argentine Peso</option>
+                  <option value="AUD">A$ - Australian Dollar</option>
+                  <option value="BRL">R$ - Brazilian Real</option>
+                  <option value="CAD">C$ - Canadian Dollar</option>
+                  <option value="CHF">CHF - Swiss Franc</option>
+                  <option value="CLP">$ - Chilean Peso</option>
+                  <option value="CNY">¥ - Chinese Yuan</option>
+                  <option value="COP">$ - Colombian Peso</option>
+                  <option value="CZK">Kč - Czech Koruna</option>
+                  <option value="DKK">kr - Danish Krone</option>
+                  <option value="EUR" selected>€ - Euro</option>
+                  <option value="GBP">£ - British Pound</option>
+                  <option value="HKD">HK$ - Hong Kong Dollar</option>
+                  <option value="HUF">Ft - Hungarian Forint</option>
+                  <option value="IDR">Rp - Indonesian Rupiah</option>
+                  <option value="ILS">₪ - Israeli Shekel</option>
+                  <option value="INR">₹ - Indian Rupee</option>
+                  <option value="JPY">¥ - Japanese Yen</option>
+                  <option value="KRW">₩ - South Korean Won</option>
+                  <option value="MXN">$ - Mexican Peso</option>
+                  <option value="MYR">RM - Malaysian Ringgit</option>
+                  <option value="NOK">kr - Norwegian Krone</option>
+                  <option value="NZD">NZ$ - New Zealand Dollar</option>
+                  <option value="PEN">S/ - Peruvian Sol</option>
+                  <option value="PHP">₱ - Philippine Peso</option>
+                  <option value="PLN">zł - Polish Zloty</option>
+                  <option value="RUB">₽ - Russian Ruble</option>
+                  <option value="SEK">kr - Swedish Krona</option>
+                  <option value="SGD">S$ - Singapore Dollar</option>
+                  <option value="THB">฿ - Thai Baht</option>
+                  <option value="TRY">₺ - Turkish Lira</option>
+                  <option value="TWD">NT$ - Taiwan Dollar</option>
+                  <option value="USD">$ - US Dollar</option>
+                  <option value="VND">₫ - Vietnamese Dong</option>
+                  <option value="ZAR">R - South African Rand</option>
                 </select>
               </div>
+            </div>
+
+            <!-- Conversions container -->
+            <div class="currency-conversions" id="currency-conversions">
+              <!-- Conversion results will be populated by JavaScript -->
             </div>
           </div>
         </div>

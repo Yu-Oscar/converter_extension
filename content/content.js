@@ -1,5 +1,54 @@
 // Overlay no longer needs selection position tracking
 
+// Helper function to clear text selection
+function clearTextSelection() {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges();
+  } else if (document.selection) {
+    document.selection.empty();
+  }
+}
+
+// Helper function to copy text to clipboard and show feedback
+function copyToClipboard(text, element) {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      // Show visual feedback
+      const originalText = element.textContent;
+      element.textContent = "Copied!";
+      element.style.background = "#fef3c7";
+      element.style.color = "#92400e";
+
+      setTimeout(() => {
+        element.textContent = originalText;
+        element.style.background = "";
+        element.style.color = "#d97706";
+      }, 1500);
+    })
+    .catch(() => {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      // Show feedback
+      const originalText = element.textContent;
+      element.textContent = "Copied!";
+      element.style.background = "#fef3c7";
+      element.style.color = "#92400e";
+
+      setTimeout(() => {
+        element.textContent = originalText;
+        element.style.background = "";
+        element.style.color = "#d97706";
+      }, 1500);
+    });
+}
+
 // Comprehensive timezone database (simplified version of zone1970.tab data)
 const ALL_ZONES = [
   // North America
@@ -745,8 +794,6 @@ function handleTextSelection() {
     }
 
     if (isConvertibleText(selectedText)) {
-      console.log("Auto-converting selected text:", selectedText);
-
       // Send message to background script for conversion
       chrome.runtime.sendMessage({
         action: "autoConvert",
@@ -826,8 +873,6 @@ function createOverlay() {
 }
 
 function showResult(result, originalText) {
-  console.log("showResult called with:", result, originalText);
-
   // Handle different conversion types based on conversionType
   if (
     result.conversionType === "temperature" ||
@@ -846,8 +891,6 @@ function showResult(result, originalText) {
 }
 
 function showTemperatureResult(result, originalText) {
-  console.log("showTemperatureResult called with:", result, originalText);
-
   const overlay = createOverlay();
   isOverlayInConverterMode = true; // Set converter mode after initial detection
 
@@ -875,7 +918,9 @@ function showTemperatureResult(result, originalText) {
     text-transform: uppercase;
     letter-spacing: 0.5px;
   `;
-  detectedTempDiv.textContent = `Detected: ${result.detectedTemp}${result.tempData?.unit?.toUpperCase() || ''}`;
+  detectedTempDiv.textContent = `Detected: ${result.detectedTemp}${
+    result.tempData?.unit?.toUpperCase() || ""
+  }`;
 
   const conversionsContainer = document.createElement("div");
 
@@ -896,12 +941,35 @@ function showTemperatureResult(result, originalText) {
 
       const value = document.createElement("div");
       value.style.cssText = `
-        color: #dc2626;
+        color: #d97706;
         font-weight: 600;
         margin-top: 2px;
         font-size: 16px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s ease;
       `;
       value.textContent = conv.value;
+
+      // Add click-to-copy functionality
+      value.addEventListener("click", () => {
+        clearTextSelection();
+        copyToClipboard(conv.value, value);
+      });
+
+      value.addEventListener("mouseenter", () => {
+        value.style.backgroundColor = "#fef3c7";
+        value.style.padding = "2px 4px";
+        value.style.borderRadius = "3px";
+        value.style.transform = "translateY(-1px)";
+      });
+
+      value.addEventListener("mouseleave", () => {
+        value.style.backgroundColor = "";
+        value.style.padding = "";
+        value.style.borderRadius = "";
+        value.style.transform = "";
+      });
 
       convDiv.appendChild(label);
       convDiv.appendChild(value);
@@ -957,8 +1025,6 @@ function showTemperatureResult(result, originalText) {
 }
 
 function showLengthResult(result, originalText) {
-  console.log("showLengthResult called with:", result, originalText);
-
   const overlay = createOverlay();
   isOverlayInConverterMode = true; // Set converter mode after initial detection
 
@@ -986,7 +1052,7 @@ function showLengthResult(result, originalText) {
     text-transform: uppercase;
     letter-spacing: 0.5px;
   `;
-  detectedLengthDiv.textContent = `Detected: ${result.detectedValue || ''}`;
+  detectedLengthDiv.textContent = `Detected: ${result.detectedValue || ""}`;
 
   const conversionsContainer = document.createElement("div");
 
@@ -1007,12 +1073,35 @@ function showLengthResult(result, originalText) {
 
       const value = document.createElement("div");
       value.style.cssText = `
-        color: #059669;
+        color: #d97706;
         font-weight: 600;
         margin-top: 2px;
         font-size: 16px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s ease;
       `;
       value.textContent = conv.value;
+
+      // Add click-to-copy functionality
+      value.addEventListener("click", () => {
+        clearTextSelection();
+        copyToClipboard(conv.value, value);
+      });
+
+      value.addEventListener("mouseenter", () => {
+        value.style.backgroundColor = "#fef3c7";
+        value.style.padding = "2px 4px";
+        value.style.borderRadius = "3px";
+        value.style.transform = "translateY(-1px)";
+      });
+
+      value.addEventListener("mouseleave", () => {
+        value.style.backgroundColor = "";
+        value.style.padding = "";
+        value.style.borderRadius = "";
+        value.style.transform = "";
+      });
 
       convDiv.appendChild(label);
       convDiv.appendChild(value);
@@ -1068,8 +1157,6 @@ function showLengthResult(result, originalText) {
 }
 
 function showWeightResult(result, originalText) {
-  console.log("showWeightResult called with:", result, originalText);
-
   const overlay = createOverlay();
   isOverlayInConverterMode = true; // Set converter mode after initial detection
 
@@ -1097,7 +1184,7 @@ function showWeightResult(result, originalText) {
     text-transform: uppercase;
     letter-spacing: 0.5px;
   `;
-  detectedWeightDiv.textContent = `Detected: ${result.detectedValue || ''}`;
+  detectedWeightDiv.textContent = `Detected: ${result.detectedValue || ""}`;
 
   const conversionsContainer = document.createElement("div");
 
@@ -1118,12 +1205,35 @@ function showWeightResult(result, originalText) {
 
       const value = document.createElement("div");
       value.style.cssText = `
-        color: #7c3aed;
+        color: #d97706;
         font-weight: 600;
         margin-top: 2px;
         font-size: 16px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s ease;
       `;
       value.textContent = conv.value;
+
+      // Add click-to-copy functionality
+      value.addEventListener("click", () => {
+        clearTextSelection();
+        copyToClipboard(conv.value, value);
+      });
+
+      value.addEventListener("mouseenter", () => {
+        value.style.backgroundColor = "#fef3c7";
+        value.style.padding = "2px 4px";
+        value.style.borderRadius = "3px";
+        value.style.transform = "translateY(-1px)";
+      });
+
+      value.addEventListener("mouseleave", () => {
+        value.style.backgroundColor = "";
+        value.style.padding = "";
+        value.style.borderRadius = "";
+        value.style.transform = "";
+      });
 
       convDiv.appendChild(label);
       convDiv.appendChild(value);
@@ -1179,8 +1289,6 @@ function showWeightResult(result, originalText) {
 }
 
 function showCurrencyResult(result, originalText) {
-  console.log("showCurrencyResult called with:", result, originalText);
-
   const overlay = createOverlay();
   isOverlayInConverterMode = true; // Set converter mode after initial detection
 
@@ -1208,7 +1316,7 @@ function showCurrencyResult(result, originalText) {
     text-transform: uppercase;
     letter-spacing: 0.5px;
   `;
-  detectedCurrencyDiv.textContent = `Detected: ${result.detectedValue || ''}`;
+  detectedCurrencyDiv.textContent = `Detected: ${result.detectedValue || ""}`;
 
   const conversionsContainer = document.createElement("div");
 
@@ -1229,12 +1337,35 @@ function showCurrencyResult(result, originalText) {
 
       const value = document.createElement("div");
       value.style.cssText = `
-        color: #f59e0b;
+        color: #d97706;
         font-weight: 600;
         margin-top: 2px;
         font-size: 16px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s ease;
       `;
       value.textContent = conv.value;
+
+      // Add click-to-copy functionality
+      value.addEventListener("click", () => {
+        clearTextSelection();
+        copyToClipboard(conv.value, value);
+      });
+
+      value.addEventListener("mouseenter", () => {
+        value.style.backgroundColor = "#fef3c7";
+        value.style.padding = "2px 4px";
+        value.style.borderRadius = "3px";
+        value.style.transform = "translateY(-1px)";
+      });
+
+      value.addEventListener("mouseleave", () => {
+        value.style.backgroundColor = "";
+        value.style.padding = "";
+        value.style.borderRadius = "";
+        value.style.transform = "";
+      });
 
       convDiv.appendChild(label);
       convDiv.appendChild(value);
@@ -1290,8 +1421,6 @@ function showCurrencyResult(result, originalText) {
 }
 
 function showTimeResult(result, originalText) {
-  console.log("showTimeResult called with:", result, originalText);
-
   const overlay = createOverlay();
   isOverlayInConverterMode = true; // Set converter mode after initial detection
 
@@ -1405,13 +1534,6 @@ function showTimeResult(result, originalText) {
       // If no tz detected, initialTimezone remains null
     }
   }
-
-  console.log("Dropdown initial values:", {
-    initialHour,
-    initialMinute,
-    initialAMPM,
-    initialTimezone,
-  });
 
   // Show simple one-line timezone info
   detectedZoneDiv.innerHTML = ""; // Clear existing content
@@ -1710,11 +1832,35 @@ function showTimeResult(result, originalText) {
 
             const value = document.createElement("div");
             value.style.cssText = `
-              color: #2563eb;
+              color: #d97706;
               font-weight: 600;
               margin-top: 2px;
+              font-size: 16px;
+              cursor: pointer;
+              user-select: none;
+              transition: all 0.2s ease;
             `;
             value.textContent = conv.value;
+
+            // Add click-to-copy functionality
+            value.addEventListener("click", () => {
+              clearTextSelection();
+              copyToClipboard(conv.value, value);
+            });
+
+            value.addEventListener("mouseenter", () => {
+              value.style.backgroundColor = "#fef3c7";
+              value.style.padding = "2px 4px";
+              value.style.borderRadius = "3px";
+              value.style.transform = "translateY(-1px)";
+            });
+
+            value.addEventListener("mouseleave", () => {
+              value.style.backgroundColor = "";
+              value.style.padding = "";
+              value.style.borderRadius = "";
+              value.style.transform = "";
+            });
 
             convDiv.appendChild(label);
             convDiv.appendChild(value);
@@ -1762,11 +1908,35 @@ function showTimeResult(result, originalText) {
 
           const value = document.createElement("div");
           value.style.cssText = `
-            color: #2563eb;
+            color: #d97706;
             font-weight: 600;
             margin-top: 2px;
+            font-size: 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
           `;
           value.textContent = conv.value;
+
+          // Add click-to-copy functionality
+          value.addEventListener("click", () => {
+            clearTextSelection();
+            copyToClipboard(conv.value, value);
+          });
+
+          value.addEventListener("mouseenter", () => {
+            value.style.backgroundColor = "#fef3c7";
+            value.style.padding = "2px 4px";
+            value.style.borderRadius = "3px";
+            value.style.transform = "translateY(-1px)";
+          });
+
+          value.addEventListener("mouseleave", () => {
+            value.style.backgroundColor = "";
+            value.style.padding = "";
+            value.style.borderRadius = "";
+            value.style.transform = "";
+          });
 
           convDiv.appendChild(label);
           convDiv.appendChild(value);
@@ -1825,8 +1995,6 @@ function showTimeResult(result, originalText) {
 }
 
 function showError(error, originalText) {
-  console.log("showError called with:", error, originalText);
-
   const overlay = createOverlay();
   isOverlayInConverterMode = true; // Set converter mode after initial detection
 
@@ -1906,10 +2074,7 @@ function showError(error, originalText) {
 // Listen for messages from background script
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Content script received message:", message);
-
   if (message.action === "showConversion") {
-    console.log("Creating new overlay");
     showResult(message.result, message.originalText);
   } else if (message.action === "showError") {
     showError(message.error, message.originalText);

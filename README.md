@@ -1,6 +1,6 @@
-# Smart Converter — Chrome Extension Starter
+# Flash Convert — Chrome Extension Starter
 
-Smart Converter is a Chrome Extension (Manifest V3) that converts selected text (starting with time values) into your preferred formats. The architecture is built to be modular and extensible, so you can add other unit families later (temperature, length, mass, speed, etc.) with minimal changes.
+Flash Convert is a Chrome Extension (Manifest V3) that converts selected text (starting with time values) into your preferred formats. The architecture is built to be modular and extensible, so you can add other unit families later (temperature, length, mass, speed, etc.) with minimal changes.
 
 ## 📦 Features (MVP)
 
@@ -18,7 +18,7 @@ Smart Converter is a Chrome Extension (Manifest V3) that converts selected text 
 1. Clone or unzip this repo.
 2. Open Chrome and go to `chrome://extensions`.
 3. Enable **Developer mode** (top-right).
-4. Click **Load unpacked** → select the `universal_converter_extension` folder.
+4. Click **Load unpacked** → select the `converter_extension` folder.
 5. The extension should now appear in your toolbar.
 
 ## 🖱 Usage
@@ -34,83 +34,60 @@ You can configure zones in the toolbar popup.
 
 ## 🏗 Architecture Overview
 
-This project is structured around a pipeline that processes user selections in stages:
+This project uses a streamlined architecture that processes user selections directly:
 
 ```
 Selection text
    ↓
-Tokenizer (split into candidates)
+Background Script (detect → parse → convert)
    ↓
-Classifier (decide which family handles it)
+Content Script (render tooltip overlay)
    ↓
-Family Module (parse → convert → render)
-   ↓
-Tooltip UI
+User Interface (copy to clipboard)
 ```
 
-Each family module (time, temperature, etc.) plugs into this pipeline.
+The extension supports multiple unit types (time, temperature, length, weight, currency) with all conversion logic centralized in the background script.
 
 ## 📁 File Structure
 
 ```
-/extension
+/converter_extension
   manifest.json              # MV3 config
   /background
-    index.js                 # context menu + routing
-    registry.js              # registers family modules
+    background.js            # service worker with all conversion logic
   /content
-    index.js                 # listens for results, manages overlay
-    overlay.js               # tooltip shell renderer
-  /core
-    tokenize.js              # splits text into candidates
-    classify.js              # picks family module
-    convert.js               # pipeline orchestrator
-    format.js                # shared number/date formatters
-    storage.js               # user preferences (chrome.storage)
-  /families
-    /time                    # working MVP module
-      index.js
-    /temperature             # stub (for later)
-      index.js
+    content.js               # content script with overlay rendering
   /popup
-    popup.html + popup.js    # toolbar UI
-  /options
-    options.html             # options page
+    popup.html               # toolbar popup UI
+    popup.js                 # popup logic and preferences
   /styles
-    tooltip.css              # Shadow DOM styling
+    tooltip.css              # tooltip styling
   /icons
-    README.md                # icon placeholder instructions
+    icon16.png               # 16x16 extension icon
+    icon48.png               # 48x48 extension icon
+    icon64.png               # 64x64 extension icon
+    icon128.png              # 128x128 extension icon
 ```
 
-## 🔌 The Family Module Interface
+## 🔧 Supported Conversions
 
-Every unit family implements the same interface:
+The extension currently supports these unit types:
 
-```javascript
-export const family = {
-  id: 'time' | 'temperature' | 'length' | ...,
-  detect(candidate) → number,        // confidence score 0..1
-  parse(candidate) → ParseResult?,   // convert raw string into typed data
-  convert({ result, prefs }) → ConversionOutput,
-  render(out, container)             // optional custom rendering
-};
-```
+- **Time**: Timezone conversions with 67+ supported timezones
+- **Temperature**: Celsius, Fahrenheit, and Kelvin conversions
+- **Length**: Metric and imperial length conversions
+- **Weight**: Metric and imperial weight conversions
+- **Currency**: Real-time currency conversions with 50+ currencies
 
-This contract ensures that the core pipeline doesn't need to know about family-specific logic. Adding new conversions is just a matter of:
+## 🕑 Time Conversion Features
 
-1. Creating a new folder in `/families/<name>/`.
-2. Implementing the `detect`, `parse`, and `convert` functions.
-3. Registering the module in `/background/registry.js`.
-
-## 🕑 Time Family (MVP)
-
-- **Detect**: looks for `HH:MM`, `h:mm am/pm`, `UTC±HH[:MM]` patterns.
-- **Parse**: extracts hours/minutes, interprets UTC offset if present.
-- **Convert**:
-  - Defaults to today's date.
-  - Converts into user's primary and secondary time zones.
-  - Uses `Intl.DateTimeFormat` for formatting.
-- **Render**: handled by the generic tooltip shell.
+- **Detection**: Recognizes `HH:MM`, `h:mm am/pm`, `UTC±HH[:MM]` patterns
+- **Parsing**: Extracts hours/minutes and interprets UTC offsets
+- **Conversion**:
+  - Defaults to today's date
+  - Converts to user's primary and secondary time zones
+  - Uses `Intl.DateTimeFormat` for accurate formatting
+- **Display**: Shows results in a clean tooltip overlay
 
 ### 🌍 Supported Timezones
 
@@ -219,119 +196,105 @@ The extension also recognizes these legacy abbreviations for backward compatibil
 
 **Note**: Variable offset timezones (ET, CT, MT, PT) automatically adjust for Daylight Saving Time using the current IANA timezone data.
 
-## 🌡 Temperature Family (Stub Example)
-
-Included as a stub (`/families/temperature/index.js`) to demonstrate how to extend:
-
-- **Detect**: regex for `25°C`, `77 F`, `300K`.
-- **Parse**: extracts numeric value + unit.
-- **Convert**: normalize to Kelvin → convert to targets (C, F, K).
-- **Render**: piggybacks on generic tooltip.
-
-To enable:
-
-- Import it in `/background/registry.js`
-- Add preferences in `/core/storage.js`
-
 ## 🧩 Core Components
 
-### Background (`/background`)
+### Background Script (`/background/background.js`)
 
-- Handles context menu clicks.
-- Runs the pipeline (`processSelection`).
-- Sends results back to the content script for rendering.
+- Handles context menu clicks and text selection
+- Contains all conversion logic for time, temperature, length, weight, and currency
+- Processes user selections and sends results to content script
+- Manages user preferences and settings
 
-### Content (`/content`)
+### Content Script (`/content/content.js`)
 
-- Injects a Shadow DOM tooltip overlay.
-- Listens for results from background and renders them.
+- Injects tooltip overlays on web pages
+- Listens for conversion results from background script
+- Renders conversion results in clean, copyable tooltips
+- Handles user interactions (copy to clipboard)
 
-### Core (`/core`)
+### Popup UI (`/popup/`)
 
-- `tokenize.js`: prepares selection text for classification.
-- `classify.js`: asks each family module for a confidence score.
-- `convert.js`: runs detect → parse → convert.
-- `storage.js`: stores preferences in `chrome.storage.sync`.
+- Provides user interface for setting preferences
+- Allows configuration of time zones, temperature units, etc.
+- Clean, responsive design for extension management
 
-### Families (`/families`)
+### Styling (`/styles/tooltip.css`)
 
-- Each family (time, temperature, etc.) lives in its own folder.
-- Only time is active by default.
-
-### UI (`/popup` and `/styles`)
-
-- Popup for user preferences (primary/secondary zones).
-- Tooltip styling with consistent look.
+- Consistent tooltip appearance across all web pages
+- Responsive design that works on any website
+- Clean, modern styling with proper contrast
 
 ## 🔮 Future Expansion
 
-The architecture supports incremental growth:
+The extension can be enhanced with:
 
-1. **Tokenizer improvements**:
+1. **Multi-unit detection**:
 
-   - Split selections like "72°F at 6pm PST we ran 5km" into multiple candidates.
+   - Parse complex selections like "72°F at 6pm PST we ran 5km"
+   - Show multiple conversion results in organized tabs
 
-2. **New families**:
+2. **Additional unit types**:
 
-   - Add `/families/length`, `/families/mass`, etc.
-   - Each defines its own regex + conversion rules.
+   - Speed conversions (mph ↔ km/h)
+   - Area conversions (sq ft ↔ sq m)
+   - Volume conversions (gallons ↔ liters)
+   - Energy conversions (calories ↔ joules)
 
-3. **Tiny classifier (optional)**:
+3. **Enhanced UX**:
 
-   - If ambiguity arises, add a small ML model for classification.
-   - Integrated at the `classify()` stage without touching family code.
+   - Inline tooltips positioned near selections
+   - Keyboard shortcuts for quick access
+   - Customizable tooltip themes
 
-4. **Lazy-loading families**:
-
-   - Use `import()` to load only the needed family when detected.
-
-5. **UX enhancements**:
-   - Inline tooltip near selection.
-   - Tabs for disambiguation (e.g., C = Celsius vs Coulomb).
+4. **Advanced features**:
+   - Historical currency rates
+   - Offline conversion capabilities
+   - Custom unit definitions
 
 ## ✅ Testing
 
-- **Unit tests**: each family's `parse` and `convert`.
-- **E2E tests**: simulate text selection and assert tooltip output.
-- **Contract tests**: ensure each family module implements the required interface.
+- **Manual testing**: Select text on any webpage and verify conversion results
+- **Cross-browser testing**: Ensure compatibility with Chrome, Edge, and other Chromium-based browsers
+- **Unit testing**: Test individual conversion functions with various inputs
+- **Integration testing**: Verify end-to-end workflow from selection to tooltip display
 
 ## ⚖️ Design Principles
 
-- **Separation of concerns**: core pipeline vs families vs UI.
-- **Extensibility**: add new unit families with no changes to existing ones.
-- **Minimal dependencies**: MVP uses only native Web APIs.
-- **Privacy**: all parsing and conversion is done locally.
-- **Progressive enhancement**: start with rules, add ML later if needed.
+- **Simplicity**: All conversion logic centralized in background script
+- **Performance**: Minimal overhead with efficient text processing
+- **Privacy**: All parsing and conversion done locally (except currency rates)
+- **Accessibility**: Clean, readable tooltips with proper contrast
+- **Reliability**: Robust error handling and fallback mechanisms
 
 ## 🛠 Development
 
-1. Make changes to the code.
-2. Go to `chrome://extensions` and click the reload button for Smart Converter.
-3. Test your changes on any webpage.
+1. Make changes to the code in your preferred editor
+2. Go to `chrome://extensions` and click the reload button for Flash Convert
+3. Test your changes by selecting text on any webpage
+4. Use browser developer tools to debug any issues
 
-## 📝 Adding New Unit Families
+## 📝 Adding New Conversion Types
 
-1. Create `/families/your-unit/index.js` with the family interface.
-2. Import and register it in `/background/registry.js`:
-   ```javascript
-   import { yourUnitFamily } from "../families/your-unit/index.js";
-   registerFamily(yourUnitFamily);
-   ```
-3. Add default preferences in `/core/storage.js`.
-4. Test with text selection on any webpage.
+To add new unit conversions:
+
+1. Add detection logic in `background/background.js`
+2. Implement conversion functions for the new unit type
+3. Add UI handling in `content/content.js` for the new conversion type
+4. Update the popup preferences if needed
+5. Test thoroughly with various input formats
 
 ## 🤝 Contributing
 
-This starter is designed to be extended! Some ideas for new families:
+This extension is designed to be easily extended! Some ideas for new conversion types:
 
-- **Length**: miles ↔ kilometers, feet ↔ meters
-- **Weight**: pounds ↔ kilograms, ounces ↔ grams
 - **Speed**: mph ↔ km/h, knots ↔ m/s
-- **Currency**: USD ↔ EUR (with live rates)
-- **Coordinates**: decimal degrees ↔ DMS
+- **Area**: square feet ↔ square meters, acres ↔ hectares
+- **Volume**: gallons ↔ liters, cubic feet ↔ cubic meters
+- **Energy**: calories ↔ joules, BTUs ↔ kilowatt-hours
+- **Coordinates**: decimal degrees ↔ DMS (degrees, minutes, seconds)
 
-Each family is self-contained, so you can work on them independently.
+The codebase is well-organized and documented, making it easy to add new features.
 
 ---
 
-**Built with ❤️ for extensibility and simplicity.**
+**Built with ❤️ for simplicity and usability.**

@@ -1219,8 +1219,27 @@ function formatCurrency(amount, currencyCode) {
     const [whole, decimal] = formatted.split(".");
     const wholeFormatted = parseInt(whole).toLocaleString();
 
-    if (symbol.length === 1 && symbol !== "CHF") {
-      return `${symbol}${wholeFormatted}.${decimal}`;
+    // Currencies that should have symbol in front
+    const symbolInFront = [
+      "USD",
+      "EUR",
+      "GBP",
+      "CNY",
+      "INR",
+      "KRW",
+      "RUB",
+      "CAD",
+      "AUD",
+      "HKD",
+      "SGD",
+      "NZD",
+      "BRL",
+      "ILS",
+      "TRY",
+    ];
+
+    if (symbolInFront.includes(currencyCode)) {
+      return `${symbol} ${wholeFormatted}.${decimal}`;
     } else {
       return `${wholeFormatted}.${decimal} ${symbol}`;
     }
@@ -1575,7 +1594,6 @@ async function convertTime(text) {
 }
 
 async function convertFromStructured(timeData) {
-  console.log("convertFromStructured called with:", timeData);
   const { hours, minutes, timezone, offset } = timeData;
 
   // Get preferences
@@ -1584,13 +1602,6 @@ async function convertFromStructured(timeData) {
   const timePrefs = prefs.time || {};
   const primaryZone = timePrefs.primaryZone || "UTC";
   const secondaryZones = timePrefs.secondaryZones || [];
-
-  console.log(
-    "Using timezones - primary:",
-    primaryZone,
-    "secondary:",
-    secondaryZones
-  );
 
   // Create a date object for "today" with the parsed time
   const now = new Date();
@@ -1637,26 +1648,12 @@ async function convertFromStructured(timeData) {
     else sourceTimezone = "UTC";
 
     sourceOffset = offset;
-    console.log(
-      "Using UTC with offset:",
-      offsetHours,
-      "→",
-      sourceTimezone,
-      "offset:",
-      sourceOffset
-    );
   } else if (timezone) {
     // Check if it's an IANA timezone (contains '/') or an abbreviation
     if (timezone.includes("/")) {
       // It's an IANA timezone, use it directly
       sourceTimezone = timezone;
       sourceOffset = getTimezoneOffset(sourceTimezone, baseDate);
-      console.log(
-        "Using IANA timezone:",
-        sourceTimezone,
-        "offset:",
-        sourceOffset
-      );
     } else if (TIMEZONE_MAP[timezone]) {
       // It's an abbreviation, convert to IANA
       const timezoneData = TIMEZONE_MAP[timezone];
@@ -1665,51 +1662,26 @@ async function convertFromStructured(timeData) {
       // Use the stored offset if available, otherwise calculate it
       if (timezoneData.offset !== null) {
         sourceOffset = timezoneData.offset;
-        console.log(
-          "Using stored offset for",
-          timezone,
-          "->",
-          sourceTimezone,
-          "offset:",
-          sourceOffset
-        );
       } else {
         sourceOffset = getTimezoneOffset(sourceTimezone, baseDate);
-        console.log(
-          "Calculated offset for",
-          timezone,
-          "->",
-          sourceTimezone,
-          "offset:",
-          sourceOffset
-        );
       }
     }
   } else if (offset !== null) {
     sourceOffset = -offset; // Negative because we want the offset FROM UTC
-    console.log("Using offset:", sourceOffset);
   } else {
     // No timezone specified, use local timezone
     sourceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     sourceOffset = getTimezoneOffset(sourceTimezone, baseDate);
-    console.log(
-      "Using local timezone:",
-      sourceTimezone,
-      "offset:",
-      sourceOffset
-    );
   }
 
   // Calculate UTC time
   // sourceOffset is now the offset FROM UTC TO the source timezone
   // So to get UTC time, we subtract the offset from the source time
   const utcTime = new Date(baseDate.getTime() - sourceOffset * 60000);
-  console.log("Base date:", baseDate, "UTC time:", utcTime);
 
   // Get timezones to show (primary + secondary, excluding source)
   const allZones = [primaryZone, ...secondaryZones];
   const zonesToShow = allZones.filter((zone) => zone !== sourceTimezone);
-  console.log("Zones to show:", zonesToShow);
 
   const conversions = [];
 
@@ -1717,7 +1689,6 @@ async function convertFromStructured(timeData) {
   for (const tz of zonesToShow) {
     try {
       const convertedTime = formatTime(utcTime, tz);
-      console.log(`Converting to ${tz}: ${convertedTime}`);
       conversions.push({
         label: tz.split("/").pop().replace(/_/g, " "),
         value: convertedTime,
@@ -1850,19 +1821,6 @@ function getTimezoneOffset(timeZone, date) {
               const minutes = match[3] ? parseInt(match[3], 10) : 0;
               const totalMinutes = sign * (hours * 60 + minutes);
 
-              console.log(`ZoneInfo offset for ${timeZone}:`, {
-                option,
-                value: offsetPart.value,
-                totalMinutes: `${totalMinutes} minutes (${
-                  totalMinutes / 60
-                } hours)`,
-                month: date.getMonth() + 1,
-                season:
-                  date.getMonth() >= 2 && date.getMonth() <= 8
-                    ? "Summer"
-                    : "Winter",
-              });
-
               return totalMinutes;
             }
           }
@@ -1889,18 +1847,6 @@ function getTimezoneOffset(timeZone, date) {
           const hours = parseInt(offsetMatch[2], 10);
           const minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
           const totalMinutes = sign * (hours * 60 + minutes);
-
-          console.log(`ZoneInfo offset for ${timeZone} (${locale}):`, {
-            formatted,
-            totalMinutes: `${totalMinutes} minutes (${
-              totalMinutes / 60
-            } hours)`,
-            month: date.getMonth() + 1,
-            season:
-              date.getMonth() >= 2 && date.getMonth() <= 8
-                ? "Summer"
-                : "Winter",
-          });
 
           return totalMinutes;
         }
@@ -1959,17 +1905,6 @@ function getTimezoneOffsetFallback(timeZone, date) {
     // Negative offset means the timezone is behind UTC (like -5 for EST)
     const offset = (targetDate.getTime() - utcDate.getTime()) / 60000;
 
-    console.log(`Timezone ${timeZone} offset:`, {
-      originalDate: date,
-      utcDate,
-      targetTimeString,
-      targetDate,
-      offset: `${offset} minutes (${offset / 60} hours)`,
-      month: date.getMonth() + 1, // 1-12
-      season:
-        date.getMonth() >= 2 && date.getMonth() <= 8 ? "Summer" : "Winter",
-    });
-
     return offset;
   } catch (error) {
     console.warn(`Failed to get offset for ${timeZone}:`, error);
@@ -2006,68 +1941,47 @@ function formatTime(date, timeZone) {
 // Chrome extension setup
 // Extract conversion logic into reusable function
 async function performConversion(text, tabId) {
-  console.log("Converting text:", text);
-
   // Try conversion in order of specificity: currency first (most specific), then length, weight, temperature, time
   let result = null;
 
   // Try currency conversion first (very specific patterns)
   const currencyData = detectCurrencyPattern(text);
-  console.log('Currency detection result for "' + text + '":', currencyData);
   if (currencyData) {
-    console.log("DETECTED AS CURRENCY - processing currency conversion");
     result = await convertCurrencyWithPrefs(currencyData);
-    console.log("Currency conversion result:", result);
     return result;
   }
 
-  console.log("Not detected as currency, trying length...");
   // Try length conversion
   const lengthData = detectLengthPattern(text);
-  console.log('Length detection result for "' + text + '":', lengthData);
   if (lengthData) {
-    console.log("DETECTED AS LENGTH - processing length conversion");
     result = await convertLengthWithUserPrefs(lengthData);
     result.conversionType = "length"; // Add type identifier
-    console.log("Length conversion result:", result);
     return result;
   }
 
-  console.log("Not detected as length, trying weight...");
   // Try weight conversion
   const weightData = detectWeightPattern(text);
-  console.log('Weight detection result for "' + text + '":', weightData);
   if (weightData) {
-    console.log("DETECTED AS WEIGHT - processing weight conversion");
     result = await convertWeightWithUserPrefs(weightData);
     result.conversionType = "weight"; // Add type identifier
-    console.log("Weight conversion result:", result);
     return result;
   }
 
-  console.log("Not detected as weight, trying temperature...");
   // Try temperature conversion
   const tempData = detectTemperaturePattern(text);
   if (tempData) {
-    console.log("DETECTED AS TEMPERATURE - processing temperature conversion");
     result = await convertTemperatureWithPrefs(tempData);
     result.conversionType = "temperature"; // Add type identifier
-    console.log("Temperature conversion result:", result);
     return result;
   }
 
-  console.log("Not detected as temperature, trying time...");
   // Try time conversion
   const timeData = parseTime(text);
-  console.log('Time detection result for "' + text + '":', timeData);
   if (timeData) {
-    console.log("DETECTED AS TIME - processing time conversion");
     result = await convertFromStructured(timeData);
-    console.log("Time conversion result:", result);
     return result;
   }
 
-  console.log("No conversion patterns detected");
   return null;
 }
 
@@ -2080,8 +1994,6 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  console.log("Context menu clicked:", info);
-
   if (info.menuItemId === "smart-convert" && info.selectionText) {
     try {
       const result = await performConversion(info.selectionText, tab.id);
@@ -2094,9 +2006,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
             result: result,
             originalText: info.selectionText,
           },
-          (response) => {
-            console.log("Message sent, response:", response);
-          }
+          (response) => {}
         );
       } else {
         throw new Error(
@@ -2113,9 +2023,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
           error: error.message || "Conversion failed",
           originalText: info.selectionText,
         },
-        (response) => {
-          console.log("Error message sent, response:", response);
-        }
+        (response) => {}
       );
     }
   }
@@ -2126,8 +2034,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.action === "autoConvert") {
     // Auto-convert selected text
     try {
-      console.log("Auto-converting text:", message.text);
-
       const result = await performConversion(message.text, sender.tab.id);
 
       if (result) {
@@ -2144,9 +2050,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   } else if (message.action === "reconvert") {
     // Handle reconversion requests with structured timeData
     try {
-      console.log("Handling reconvert with timeData:", message.timeData);
       const result = await convertFromStructured(message.timeData);
-      console.log("Reconversion result:", result);
 
       chrome.tabs.sendMessage(sender.tab.id, {
         action: "showConversion",
