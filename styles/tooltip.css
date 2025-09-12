@@ -1,0 +1,14 @@
+/* Tooltip overlay styles - injected via Shadow DOM */
+#smart-converter-overlay {
+  all: initial;
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 2147483647 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 14px !important;
+  pointer-events: none !important;
+  box-sizing: border-box !important;
+}
+
+/* Shadow DOM styles are handled in overlay.js */

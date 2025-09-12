@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude doctor)",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(chrome:*)",
+      "Bash(npm update:*)",
+      "Read(//Users/oscaryu/.claude/local/**)",
+      "Read(//Users/oscaryu/.claude/**)",
+      "Bash(open:*)",
+      "mcp__ide__executeCode"
+    ],
+    "deny": []
+  }
+}

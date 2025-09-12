@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Universal Converter Extension - Test Page</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .instructions {
+        background: #f8f9fa;
+        padding: 30px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .instructions h2 {
+        color: #495057;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+      }
+
+      .instructions ol {
+        margin-left: 20px;
+        color: #6c757d;
+      }
+
+      .instructions li {
+        margin-bottom: 8px;
+      }
+
+      .test-section {
+        padding: 40px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .test-section:last-child {
+        border-bottom: none;
+      }
+
+      .test-section h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .test-section h2::before {
+        content: "";
+        width: 4px;
+        height: 30px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 2px;
+      }
+
+      .examples-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .example-card {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .example-card:hover {
+        border-color: #4facfe;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79, 172, 254, 0.15);
+      }
+
+      .example-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+      }
+
+      .example-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .highlight {
+        background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .currency-symbol {
+        font-size: 1.2em;
+        margin: 0 2px;
+      }
+
+      .temperature-symbol {
+        font-size: 1.1em;
+        margin: 0 2px;
+      }
+
+      .note {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+        color: #856404;
+      }
+
+      .note strong {
+        color: #533f03;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .examples-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .test-section {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🧮 Universal Converter Extension</h1>
+        <p>Test Page for Unit Conversions</p>
+      </div>
+
+      <div class="instructions">
+        <h2>📋 How to Test</h2>
+        <ol>
+          <li>
+            Make sure your Universal Converter extension is installed and
+            enabled
+          </li>
+          <li>
+            Select any text in the examples below by clicking and dragging
+          </li>
+          <li>Right-click on the selected text to see the context menu</li>
+          <li>
+            Choose "Convert" from the context menu to see conversion options
+          </li>
+          <li>Click on any conversion result to copy it to your clipboard</li>
+        </ol>
+      </div>
+
+      <div class="test-section">
+        <h2>💰 Currency Conversions</h2>
+        <p>
+          Test various currency formats including symbols, codes, and written
+          forms.
+        </p>
+
+        <div class="examples-grid">
+          <div class="example-card">
+            <div class="example-text">$100</div>
+            <div class="example-description">US Dollar with symbol</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">€50.25</div>
+            <div class="example-description">Euro with symbol</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">£75.50</div>
+            <div class="example-description">British Pound with symbol</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">¥1000</div>
+            <div class="example-description">Japanese Yen with symbol</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">100 USD</div>
+            <div class="example-description">Currency code after amount</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">EUR 50</div>
+            <div class="example-description">Currency code before amount</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">25 dollars</div>
+            <div class="example-description">Written currency name</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">10 euros</div>
+            <div class="example-description">
+              Written currency name (plural)
+            </div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">₹500</div>
+            <div class="example-description">Indian Rupee with symbol</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">₩10000</div>
+            <div class="example-description">South Korean Won with symbol</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>📏 Length & Distance</h2>
+        <p>
+          Test metric and imperial length measurements with various
+          abbreviations.
+        </p>
+
+        <div class="examples-grid">
+          <div class="example-card">
+            <div class="example-text">100 cm</div>
+            <div class="example-description">Centimeters (abbreviated)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">5 feet</div>
+            <div class="example-description">Feet (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">2.5 meters</div>
+            <div class="example-description">Meters (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">12 inches</div>
+            <div class="example-description">Inches (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">1.5 km</div>
+            <div class="example-description">Kilometers (abbreviated)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">3 yards</div>
+            <div class="example-description">Yards (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">500 mm</div>
+            <div class="example-description">Millimeters (abbreviated)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">0.5 miles</div>
+            <div class="example-description">Miles (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">6' 2"</div>
+            <div class="example-description">Feet and inches with symbols</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🌡️ Temperature</h2>
+        <p>
+          Test temperature conversions between Celsius, Fahrenheit, and Kelvin.
+        </p>
+
+        <div class="examples-grid">
+          <div class="example-card">
+            <div class="example-text">25°C</div>
+            <div class="example-description">Celsius with degree symbol</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">77°F</div>
+            <div class="example-description">Fahrenheit with degree symbol</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">300K</div>
+            <div class="example-description">Kelvin (no degree symbol)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">0 celsius</div>
+            <div class="example-description">Celsius (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">32 fahrenheit</div>
+            <div class="example-description">Fahrenheit (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">-40°C</div>
+            <div class="example-description">Negative Celsius temperature</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">100°F</div>
+            <div class="example-description">High Fahrenheit temperature</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">273.15 kelvin</div>
+            <div class="example-description">Kelvin (written form)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>⚖️ Weight & Mass</h2>
+        <p>
+          Test weight conversions including compound measurements like pounds
+          and ounces.
+        </p>
+
+        <div class="examples-grid">
+          <div class="example-card">
+            <div class="example-text">70 kg</div>
+            <div class="example-description">Kilograms (abbreviated)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">150 pounds</div>
+            <div class="example-description">Pounds (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">500 grams</div>
+            <div class="example-description">Grams (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">8 oz</div>
+            <div class="example-description">Ounces (abbreviated)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">2 tonnes</div>
+            <div class="example-description">Tonnes (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">10 stone</div>
+            <div class="example-description">Stone (written form)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">5 pounds 8 ounces</div>
+            <div class="example-description">Compound measurement</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">12 st 6 lbs</div>
+            <div class="example-description">
+              Stone and pounds (abbreviated)
+            </div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">1000 mg</div>
+            <div class="example-description">Milligrams (abbreviated)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🕐 Time & Timezone</h2>
+        <p>
+          Test time conversions with various formats and timezone indicators.
+        </p>
+
+        <div class="examples-grid">
+          <div class="example-card">
+            <div class="example-text">2:30 PM</div>
+            <div class="example-description">12-hour format with AM/PM</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">14:30</div>
+            <div class="example-description">24-hour format</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">9 AM</div>
+            <div class="example-description">12-hour format (hour only)</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">15:45 UTC</div>
+            <div class="example-description">UTC timezone</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">10:30 AM GMT+5</div>
+            <div class="example-description">GMT with positive offset</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">8:15 PM UTC-8</div>
+            <div class="example-description">UTC with negative offset</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">12:00 GMT</div>
+            <div class="example-description">GMT timezone</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">16:20 UTC+2</div>
+            <div class="example-description">UTC with positive offset</div>
+          </div>
+
+          <div class="example-card">
+            <div class="example-text">11:45 AM UTC-5:30</div>
+            <div class="example-description">UTC with fractional offset</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>💡 Pro Tip:</strong> Try selecting different parts of the text
+        or the entire text to see how the extension detects and converts
+        different unit formats. The extension is smart enough to recognize
+        various abbreviations, symbols, and written forms!
+      </div>
+    </div>
+  </body>
+</html>

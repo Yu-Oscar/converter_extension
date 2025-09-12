@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smart Converter</title>
+    <style>
+      body {
+        width: 320px;
+        min-height: 420px;
+        padding: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        font-size: 14px;
+        margin: 0;
+        background: #fff;
+      }
+
+      .page {
+        display: none;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .nav-button {
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .nav-button:hover {
+        background: #f3f4f6;
+        color: #333;
+      }
+
+      .back-button {
+        color: #2563eb;
+      }
+
+      .back-button:hover {
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+
+      .main-content {
+        padding: 0;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .tip-box {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 6px;
+        padding: 12px;
+        margin: 16px 0;
+      }
+
+      .tip-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .info-box {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+      }
+
+      .info-box h3 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+      }
+
+      .section {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .section h2 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        background: white;
+        box-sizing: border-box;
+      }
+
+      select:focus,
+      input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+      }
+
+      .secondary-zones {
+        margin-top: 8px;
+      }
+
+      .zone-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding: 8px;
+        background: #f9fafb;
+        border-radius: 4px;
+      }
+
+      .zone-item select {
+        flex: 1;
+        margin: 0;
+      }
+
+      .remove-btn {
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .remove-btn:hover {
+        background: #b91c1c;
+      }
+
+      .add-btn {
+        background: #16a34a;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        margin-top: 8px;
+      }
+
+      .add-btn:hover {
+        background: #15803d;
+      }
+
+      .save-btn {
+        width: 100%;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 16px;
+      }
+
+      .save-btn:hover {
+        background: #1d4ed8;
+      }
+
+      .save-btn.saved {
+        background: #16a34a;
+      }
+
+      .status {
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .status.success {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .status.error {
+        background: #fecaca;
+        color: #dc2626;
+      }
+
+      /* Converter Tabs */
+      .converter-tabs {
+        margin-bottom: 16px;
+      }
+
+      .tab-buttons {
+        display: flex;
+        background: #f3f4f6;
+        border-radius: 8px;
+        padding: 4px;
+        margin-bottom: 16px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        color: #666;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+      }
+
+      .tab-btn:hover {
+        background: #e5e7eb;
+        color: #333;
+      }
+
+      .tab-btn.active {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .converter-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .single-converter-section {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .input-section {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .input-section input {
+        flex: 2;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+        box-sizing: border-box;
+      }
+
+      .input-section input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      .input-section select {
+        flex: 0 0 80px;
+        padding: 10px 6px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        background: white;
+        color: #374151;
+      }
+
+      /* Feet-Inches Input */
+      .feet-inches-input {
+        flex: 2;
+        display: flex;
+        gap: 8px;
+      }
+
+      .feet-inches-input input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+        box-sizing: border-box;
+      }
+
+      .feet-inches-input input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      /* Stone-Pounds Input */
+      .stone-pounds-input {
+        flex: 2;
+        display: flex;
+        gap: 8px;
+      }
+
+      .stone-pounds-input input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+        box-sizing: border-box;
+      }
+
+      .stone-pounds-input input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      .results-section {
+        /* Remove height restriction to show all results */
+      }
+
+      .result-item {
+        margin-bottom: 8px;
+      }
+
+      .result-label {
+        font-weight: 500;
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+      }
+
+      .result-value {
+        color: #059669;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .input-group {
+        flex: 1;
+        min-width: 120px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input-group input {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+        box-sizing: border-box;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      .input-group input[readonly] {
+        background: #f9fafb;
+        color: #374151;
+      }
+
+      .input-group select {
+        padding: 8px 6px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 12px;
+        background: white;
+        color: #374151;
+      }
+
+      .convert-arrow {
+        font-size: 18px;
+        color: #6b7280;
+        font-weight: bold;
+        align-self: flex-start;
+        margin-top: 8px;
+        flex-shrink: 0;
+      }
+
+      /* Metric Tabs */
+      .metric-tabs-container {
+        margin-bottom: 12px;
+      }
+
+      .metric-tab-buttons {
+        display: flex;
+        background: #f9fafb;
+        border-radius: 4px;
+        padding: 2px;
+        margin-bottom: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .metric-tab-btn {
+        flex: 1;
+        padding: 3px 6px;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-align: center;
+      }
+
+      .metric-tab-btn:hover {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
+
+      .metric-tab-btn.active {
+        background: #e5e7eb;
+        color: #374151;
+        font-weight: 500;
+      }
+
+      .metric-tab-content {
+        position: relative;
+      }
+
+      .metric-tab-item {
+        display: none;
+      }
+
+      .metric-tab-item.active {
+        display: block;
+      }
+
+      /* Imperial Tabs */
+      .imperial-tabs-container {
+        margin-bottom: 12px;
+      }
+
+      .imperial-tab-buttons {
+        display: flex;
+        background: #f9fafb;
+        border-radius: 4px;
+        padding: 2px;
+        margin-bottom: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .imperial-tab-btn {
+        flex: 1;
+        padding: 3px 6px;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-align: center;
+      }
+
+      .imperial-tab-btn:hover {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
+
+      .imperial-tab-btn.active {
+        background: #e5e7eb;
+        color: #374151;
+        font-weight: 500;
+      }
+
+      .imperial-tab-content {
+        position: relative;
+      }
+
+      .imperial-tab-item {
+        display: none;
+      }
+
+      .imperial-tab-item.active {
+        display: block;
+      }
+
+      /* Time Tab Styles */
+      .time-detected {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .from-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .timezone-row {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .arrow-row {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin: 4px 0;
+      }
+
+      .timezone-separator {
+        font-size: 20px;
+        font-weight: 600;
+        color: #666;
+        line-height: 1;
+      }
+
+      .time-detected input[type="time"] {
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        background: white;
+        color: #333;
+        width: 100px;
+        text-align: center;
+        outline: none;
+        height: 32px;
+        box-sizing: border-box;
+      }
+
+      .time-detected select {
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        background: white;
+        color: #333;
+        outline: none;
+        min-width: 180px;
+        max-width: 220px;
+        height: 32px;
+        box-sizing: border-box;
+      }
+
+      .time-detected input[type="time"]:focus,
+      .time-detected select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      /* Conversions container (exact overlay styling) */
+      .time-conversions {
+        margin-top: 8px;
+      }
+
+      .time-conversion-item {
+        margin-bottom: 8px;
+      }
+
+      .time-conversion-label {
+        font-weight: 500;
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .time-conversion-value {
+        color: #2563eb;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+
+      @media (max-width: 300px) {
+        .converter-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .convert-arrow {
+          align-self: center;
+          margin: 8px 0;
+          transform: rotate(90deg);
+        }
+
+        .from-row {
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .time-detected select {
+          min-width: 100%;
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main Page -->
+    <div class="page active" id="mainPage">
+      <div class="header">
+        <h1>Smart Converter</h1>
+        <button class="nav-button" id="settingsBtn">Settings</button>
+      </div>
+
+      <div class="main-content">
+        <!-- Converter Tabs -->
+        <div class="converter-tabs">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="length">Length</button>
+            <button class="tab-btn" data-tab="weight">Weight</button>
+            <button class="tab-btn" data-tab="temperature">Temp</button>
+            <button class="tab-btn" data-tab="time">Time</button>
+            <button class="tab-btn" data-tab="currency">Currency</button>
+          </div>
+
+          <!-- Length Tab Content -->
+          <div class="tab-content active" id="length-tab">
+            <div class="single-converter-section">
+              <div class="input-section">
+                <!-- Single input for most units -->
+                <input
+                  type="number"
+                  id="length-input"
+                  placeholder="Enter length value"
+                  step="any"
+                />
+
+                <!-- Dual input for feet-inches -->
+                <div
+                  id="feet-inches-input"
+                  class="feet-inches-input"
+                  style="display: none"
+                >
+                  <input
+                    type="number"
+                    id="feet-input"
+                    placeholder="Feet"
+                    step="1"
+                    min="0"
+                  />
+                  <input
+                    type="number"
+                    id="inches-input"
+                    placeholder="Inches"
+                    step="any"
+                    min="0"
+                    max="11.99"
+                  />
+                </div>
+
+                <select id="length-from">
+                  <option value="meters">m</option>
+                  <option value="feet" selected>ft</option>
+                  <option value="feet-inches">ft-in</option>
+                  <option value="inches">in</option>
+                  <option value="centimeters">cm</option>
+                  <option value="millimeters">mm</option>
+                  <option value="kilometers">km</option>
+                  <option value="yards">yd</option>
+                  <option value="miles">mi</option>
+                </select>
+              </div>
+              <div class="results-section" id="length-results">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Weight Tab Content -->
+          <div class="tab-content" id="weight-tab">
+            <div class="single-converter-section">
+              <div class="input-section">
+                <!-- Single input for most units -->
+                <input
+                  type="number"
+                  id="weight-input"
+                  placeholder="Enter weight value"
+                  step="any"
+                />
+
+                <!-- Dual input for stone-pounds -->
+                <div
+                  id="stone-pounds-input"
+                  class="stone-pounds-input"
+                  style="display: none"
+                >
+                  <input
+                    type="number"
+                    id="stone-input"
+                    placeholder="Stone"
+                    step="1"
+                    min="0"
+                  />
+                  <input
+                    type="number"
+                    id="pounds-input"
+                    placeholder="Pounds"
+                    step="any"
+                    min="0"
+                    max="13.99"
+                  />
+                </div>
+
+                <select id="weight-from">
+                  <option value="stone-pounds">st-lb</option>
+                  <option value="pounds" selected>lb</option>
+                  <option value="kilograms">kg</option>
+                  <option value="grams">g</option>
+                  <option value="ounces">oz</option>
+                  <option value="stone">st</option>
+                  <option value="tonnes">t</option>
+                  <option value="milligrams">mg</option>
+                </select>
+              </div>
+              <div class="results-section" id="weight-results">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Temperature Tab Content -->
+          <div class="tab-content" id="temperature-tab">
+            <div class="single-converter-section">
+              <div class="input-section">
+                <input
+                  type="number"
+                  id="temperature-input"
+                  placeholder="Enter temperature value"
+                  step="any"
+                />
+                <select id="temperature-from">
+                  <option value="fahrenheit" selected>°F</option>
+                  <option value="celsius">°C</option>
+                  <option value="kelvin">K</option>
+                </select>
+              </div>
+              <div class="results-section" id="temperature-results">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Tab Content -->
+          <div class="tab-content" id="time-tab">
+            <!-- Time input and timezone selector -->
+            <div class="time-detected" id="time-detected">
+              <!-- From time and timezone row -->
+              <div class="from-row">
+                <input type="time" id="time-input" step="60" />
+                <select id="time-from-timezone">
+                  <!-- Options will be populated by JavaScript -->
+                </select>
+              </div>
+
+              <!-- Arrow separator row -->
+              <div class="arrow-row">
+                <span class="timezone-separator">↓</span>
+              </div>
+
+              <!-- To timezone row -->
+              <div class="timezone-row">
+                <select id="time-to-timezone">
+                  <!-- Options will be populated by JavaScript -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Conversions container (like overlay) -->
+            <div class="time-conversions" id="time-conversions">
+              <!-- Conversion results will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Currency Tab Content -->
+          <div class="tab-content" id="currency-tab">
+            <div class="converter-section">
+              <div class="input-group">
+                <input
+                  type="number"
+                  id="currency-input"
+                  placeholder="Enter value"
+                  step="any"
+                />
+                <select id="currency-from">
+                  <option value="ARS">ARS</option>
+                  <option value="AUD">AUD</option>
+                  <option value="BRL">BRL</option>
+                  <option value="CAD">CAD</option>
+                  <option value="CHF">CHF</option>
+                  <option value="CLP">CLP</option>
+                  <option value="CNY">CNY</option>
+                  <option value="COP">COP</option>
+                  <option value="CZK">CZK</option>
+                  <option value="DKK">DKK</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="HKD">HKD</option>
+                  <option value="HUF">HUF</option>
+                  <option value="IDR">IDR</option>
+                  <option value="ILS">ILS</option>
+                  <option value="INR">INR</option>
+                  <option value="JPY">JPY</option>
+                  <option value="KRW">KRW</option>
+                  <option value="MXN">MXN</option>
+                  <option value="MYR">MYR</option>
+                  <option value="NOK">NOK</option>
+                  <option value="NZD">NZD</option>
+                  <option value="PEN">PEN</option>
+                  <option value="PHP">PHP</option>
+                  <option value="PLN">PLN</option>
+                  <option value="RUB">RUB</option>
+                  <option value="SEK">SEK</option>
+                  <option value="SGD">SGD</option>
+                  <option value="THB">THB</option>
+                  <option value="TRY">TRY</option>
+                  <option value="TWD">TWD</option>
+                  <option value="USD">USD</option>
+                  <option value="VND">VND</option>
+                  <option value="ZAR">ZAR</option>
+                </select>
+              </div>
+              <div class="convert-arrow">→</div>
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="currency-output"
+                  readonly
+                  placeholder="Result"
+                />
+                <select id="currency-to">
+                  <option value="ARS">ARS</option>
+                  <option value="AUD">AUD</option>
+                  <option value="BRL">BRL</option>
+                  <option value="CAD">CAD</option>
+                  <option value="CHF">CHF</option>
+                  <option value="CLP">CLP</option>
+                  <option value="CNY">CNY</option>
+                  <option value="COP">COP</option>
+                  <option value="CZK">CZK</option>
+                  <option value="DKK">DKK</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="HKD">HKD</option>
+                  <option value="HUF">HUF</option>
+                  <option value="IDR">IDR</option>
+                  <option value="ILS">ILS</option>
+                  <option value="INR">INR</option>
+                  <option value="JPY">JPY</option>
+                  <option value="KRW">KRW</option>
+                  <option value="MXN">MXN</option>
+                  <option value="MYR">MYR</option>
+                  <option value="NOK">NOK</option>
+                  <option value="NZD">NZD</option>
+                  <option value="PEN">PEN</option>
+                  <option value="PHP">PHP</option>
+                  <option value="PLN">PLN</option>
+                  <option value="RUB">RUB</option>
+                  <option value="SEK">SEK</option>
+                  <option value="SGD">SGD</option>
+                  <option value="THB">THB</option>
+                  <option value="TRY">TRY</option>
+                  <option value="TWD">TWD</option>
+                  <option value="USD">USD</option>
+                  <option value="VND">VND</option>
+                  <option value="ZAR">ZAR</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div class="page" id="settingsPage">
+      <div class="header">
+        <button class="nav-button back-button" id="backBtn">← Back</button>
+        <h1>Settings</h1>
+        <div></div>
+      </div>
+
+      <div class="section">
+        <h2>Timezone Conversion</h2>
+
+        <div class="form-group">
+          <label for="primaryTimezone">Primary Timezone</label>
+          <select id="primaryTimezone">
+            <!-- Options will be populated by JavaScript -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Secondary Timezones</label>
+          <div id="secondaryTimezones" class="secondary-zones"></div>
+          <button type="button" class="add-btn" id="addTimezone">
+            Add Timezone
+          </button>
+        </div>
+
+        <p
+          style="
+            color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+            font-style: italic;
+          "
+        >
+          Used for time conversion displays in overlay
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Currency Conversion</h2>
+
+        <div class="form-group">
+          <label for="primaryCurrency">Primary Currency</label>
+          <select id="primaryCurrency">
+            <!-- Options will be populated by JavaScript -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Secondary Currencies</label>
+          <div id="secondaryCurrencies" class="secondary-zones"></div>
+          <button type="button" class="add-btn" id="addCurrency">
+            Add Currency
+          </button>
+        </div>
+
+        <p
+          style="
+            color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+            font-style: italic;
+          "
+        >
+          Live exchange rates provided by ExchangeRate-API
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Length/Height Conversion</h2>
+
+        <div class="form-group">
+          <label for="primaryLength">Primary Unit</label>
+          <select id="primaryLength">
+            <option value="feet-inches">Feet & Inches</option>
+            <option value="feet">Feet</option>
+            <option value="meters">Meters</option>
+            <option value="centimeters">Centimeters</option>
+            <option value="inches">Inches</option>
+            <option value="millimeters">Millimeters</option>
+            <option value="kilometers">Kilometers</option>
+            <option value="yards">Yards</option>
+            <option value="miles">Miles</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Secondary Units</label>
+          <div id="secondaryLengths" class="secondary-zones"></div>
+          <button type="button" class="add-btn" id="addLength">Add Unit</button>
+        </div>
+
+        <p
+          style="
+            color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+            font-style: italic;
+          "
+        >
+          Only selected units will be shown in conversions
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Weight Conversion</h2>
+
+        <div class="form-group">
+          <label for="primaryWeight">Primary Unit</label>
+          <select id="primaryWeight">
+            <option value="pounds">Pounds</option>
+            <option value="kilograms">Kilograms</option>
+            <option value="grams">Grams</option>
+            <option value="stone">Stone</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Secondary Units</label>
+          <div id="secondaryWeights" class="secondary-zones"></div>
+          <button type="button" class="add-btn" id="addWeight">Add Unit</button>
+        </div>
+
+        <p
+          style="
+            color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+            font-style: italic;
+          "
+        >
+          Only selected units will be shown in conversions
+        </p>
+      </div>
+
+      <button type="button" class="save-btn" id="saveBtn">Save Settings</button>
+      <div id="status" class="status" style="display: none"></div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
