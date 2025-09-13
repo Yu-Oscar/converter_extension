@@ -1988,9 +1988,6 @@ function showTimeResult(result, originalText) {
   requestAnimationFrame(() => {
     tooltip.style.opacity = "1";
     tooltip.style.transform = "translateX(0)";
-
-    // Unselect any selected text after overlay is shown
-    window.getSelection().removeAllRanges();
   });
 }
 

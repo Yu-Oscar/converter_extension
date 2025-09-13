@@ -504,11 +504,11 @@ let currentPrefs = {
     secondaryCurrencies: [],
   },
   length: {
-    primaryUnit: "feet-inches",
+    primaryUnit: "meters",
     secondaryUnits: [],
   },
   weight: {
-    primaryUnit: "pounds",
+    primaryUnit: "kilograms",
     secondaryUnits: [],
   },
   temperature: {
@@ -828,7 +828,7 @@ function loadPreferences() {
     // Load length preferences
     const lengthPrefs = currentPrefs.length || {};
     document.getElementById("primaryLength").value =
-      lengthPrefs.primaryUnit || "feet-inches";
+      lengthPrefs.primaryUnit || "meters";
 
     document.getElementById("secondaryLengths").innerHTML = "";
     const secondaryLengths = lengthPrefs.secondaryUnits || [];
@@ -837,7 +837,7 @@ function loadPreferences() {
     // Load weight preferences
     const weightPrefs = currentPrefs.weight || {};
     document.getElementById("primaryWeight").value =
-      weightPrefs.primaryUnit || "pounds";
+      weightPrefs.primaryUnit || "kilograms";
 
     document.getElementById("secondaryWeights").innerHTML = "";
     const secondaryWeights = weightPrefs.secondaryUnits || [];
@@ -2287,11 +2287,8 @@ function initializeLengthConverter() {
 
   if (!lengthFrom) return; // Exit if element doesn't exist yet
 
-  const lengthPrefs = currentPrefs.length || {};
-  const primaryUnit = lengthPrefs.primaryUnit || "feet-inches";
-
-  // Set primary unit as default
-  lengthFrom.value = primaryUnit;
+  // For popup converter, always default to feet-inches regardless of overlay preferences
+  lengthFrom.value = "feet-inches";
 
   // Trigger initial conversion if there's a value
   const lengthInput = document.getElementById("length-input");
