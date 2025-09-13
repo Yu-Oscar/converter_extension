@@ -5,6 +5,10 @@
   "description": "Convert selected text (times, temperatures, etc.) into your preferred formats with a right-click",
 
   "permissions": ["contextMenus", "storage", "activeTab"],
+  "host_permissions": [
+    "https://api.exchangerate-api.com/*",
+    "https://v6.exchangerate-api.com/*"
+  ],
 
   "background": {
     "service_worker": "background/background.js"
