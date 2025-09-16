@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Flash Convert - Instant Auto Unit Conversion",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert selected text (times, temperatures, etc.) into your preferred formats with a right-click",
 
   "permissions": ["contextMenus", "storage", "activeTab"],
