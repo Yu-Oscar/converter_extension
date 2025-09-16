@@ -1255,10 +1255,11 @@ function setupConverters() {
             const totalInches = meters / 0.0254;
             const feet = Math.floor(totalInches / 12);
             const inches = totalInches % 12;
-            if (inches < 0.1) {
+            const roundedInches = Math.round(inches);
+            if (roundedInches === 0) {
               formattedValue = `${feet}'`;
             } else {
-              formattedValue = `${feet}' ${parseFloat(inches.toFixed(2))}"`;
+              formattedValue = `${feet}' ${roundedInches}"`;
             }
             break;
           case "inches":
